@@ -1,7 +1,6 @@
 import { request, response } from "express";
 import { getProductsService } from "../services/products.js";
 import { getCartsByIdService } from "../services/carts.js";
-import { getUserEmail, registerUser } from "../services/user.js";
 
 export const homeView = async (req = request, res = response) => {
     const {payload} = await getProductsService({});
@@ -33,38 +32,36 @@ export const cartIdView = async (req = request, res = response) => {
 }
 
 export const loginGet = async (req = request, res = response) => {
+    if (req.session.user)
+        return res.redirect('/')
     return res.render('login', {title: 'Login', styles: 'loginRegister.css'})
 }
 
-export const loginPost = async (req = request, res = response) => {
-    const { email, password } = req.body;
-    const user = await getUserEmail(email);
-    console.log({user})
-    if(user && user.password === password){
-        const userName = `${user.name} ${user.lastName}`;
-        req.session.user = userName;
-        req.session.rol = user.rol;
-        return res.redirect('/');
+export const login = async (req = request, res = response) => {
+    if(!req.user)
+        return res.redirect('/login');
+
+    req.session.user={
+        name: req.user.name,
+        lastName: req.user.lastName,
+        email: req.user.email,
+        rol: req.user.rol,
     }
-    return res.redirect('/login');
+    return res.redirect('/');
 }
 
 export const registerGet = async (req = request, res = response) => {
+    if (req.session.user)
+        return res.redirect('/')
     return res.render('register', {title: 'Registro', styles: 'loginRegister.css'})
 }
 
 export const registerPost = async (req = request, res = response) => {
-    const { password, confirmPassword } = req.body;
-    if(password !== confirmPassword)
+    
+    if(!req.user)
         return res.redirect('/register');
-    const user = await registerUser({...req.body});
-    if(user){
-        const userName = `${user.name} ${user.lastName}`;
-        req.session.user = userName;
-        req.session.rol = user.rol;
-        return res.redirect('/')
-    }
-    return res.redirect('/register');
+
+    return res.redirect('/login');
 }
 
 export const logout = (req = request, res = response) => {
@@ -75,4 +72,5 @@ export const logout = (req = request, res = response) => {
             return res.redirect('/login')
     });
 }
+
 

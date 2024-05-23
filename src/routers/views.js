@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { cartIdView, chatView, homeView, loginGet, loginPost, logout, productsView, realTimeProductsView, registerGet, registerPost } from '../dao/viewsDB.js';
+import { cartIdView, chatView, homeView, login, loginGet, logout, productsView, realTimeProductsView, registerGet, registerPost } from '../dao/viewsDB.js';
 import { admin, auth } from '../middleware/auth.js';
+import passport from 'passport';
 
 const router = Router();
 
@@ -9,12 +10,13 @@ router.get('/realtimeproducts', [auth, admin], realTimeProductsView);
 router.get('/chat', auth, chatView);
 router.get('/products', auth, productsView);
 router.get('/cart/:cid', auth, cartIdView);
-
 router.get('/login', loginGet);
-router.post('/login', loginPost);
-
 router.get('/register', registerGet);
-router.post('/register', registerPost);
 router.get('/logout', logout);
+router.post('/register', passport.authenticate('register',{failureRedirect:'/register'}), registerPost);
+router.post('/login', passport.authenticate('login',{failureRedirect:'/login'}), login);
+router.get('/github', passport.authenticate('github', {scope:['user:email']}), async(req, res) => {});
+router.get('/login-github-callback', passport.authenticate('github', {failureRedirect: '/register'}), login);
+
 
 export default router;

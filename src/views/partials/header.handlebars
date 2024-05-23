@@ -3,7 +3,7 @@
         <h1>{{title}}</h1>
         <nav>
             {{#if user}}
-            <p>Bienvenido, {{user}}</p>
+            <p>Bienvenido, {{user.name}}</p>
             <a href="/logout">Cerrar sesion</a>
             {{else}}
             <a href="/login">Iniciar sesion</a>

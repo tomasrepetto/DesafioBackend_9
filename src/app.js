@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import path from 'path';
 import session from "express-session"; 
 import MongoStore from "connect-mongo";
+import passport from "passport";
 import 'dotenv/config';
 
 import products from './routers/products.js';
@@ -13,6 +14,7 @@ import { dirname } from './utils.js';
 import { dbConnection } from "./database/config.js";
 import { messageModel } from "./dao/models/messages.js";
 import { addProductService, getProductsService } from "./services/products.js";
+import { initializaPassport } from "./config/passport.js";
 
 const app = express();
 const PORT = 8080;
@@ -30,6 +32,10 @@ app.use(session({
     resave: true,
     saveUninitialized: false
 }));
+
+initializaPassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.engine('handlebars', engine());
 app.set('views', path.join(dirname, 'views'));
